@@ -493,6 +493,10 @@ function PoemView:init()
     end
     if Device:hasKeys() then
         self.key_events.Close = { { Device.input.group.Back } }
+        -- Kindle 4: center of the 5-way controller opens the poem menu.
+        if Device:hasScreenKB() then
+            self.key_events.OpenPoemMenu = { { "Press" } }
+        end
         self.key_events.NextPage = { { Device.input.group.PgFwd } }
         self.key_events.PrevPage = { { Device.input.group.PgBack } }
     end
@@ -846,6 +850,14 @@ end
 
 function PoemView:onPrevPage()
     self:prevPage()
+    return true
+end
+
+-- Center button on Kindle 4. Page turns remain on the dedicated PgFwd/PgBack buttons.
+function PoemView:onOpenPoemMenu()
+    if self.on_menu then
+        self.on_menu(self)
+    end
     return true
 end
 

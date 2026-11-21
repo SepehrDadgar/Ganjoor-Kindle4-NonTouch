@@ -1,6 +1,7 @@
 local ButtonDialog = require("ui/widget/buttondialog")
 local ConfirmBox = require("ui/widget/confirmbox")
 local Core = require("ganjoor_core")
+local Device = require("device")
 local DataStorage = require("datastorage")
 local Dispatcher = require("dispatcher")
 local InfoMessage = require("ui/widget/infomessage")
@@ -299,13 +300,20 @@ function Ganjoor:showPoets()
     for _i, item in ipairs(elsewhere) do items[#items + 1] = item end
     if self.grid then
         UIManager:close(self.grid)
+        self.grid = nil
     end
-    self.grid = UI.Grid:new{
-        title = _("Ganjoor — poets"),
-        items = items,
-        on_menu = function() self:showMainActions() end,
-    }
-    UIManager:show(self.grid)
+    if Device:isTouchDevice() then
+        -- Keep the visual poet grid on touchscreen devices.
+        self.grid = UI.Grid:new{
+            title = _("Ganjoor — poets"),
+            items = items,
+            on_menu = function() self:showMainActions() end,
+        }
+        UIManager:show(self.grid)
+    else
+        -- The native KOReader menu supports D-pad focus and center-button selection.
+        self.grid = self:pushMenu(_("Ganjoor — poets"), items)
+    end
 end
 
 function Ganjoor:onPoetTap(poet)
